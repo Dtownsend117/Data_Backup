@@ -8,8 +8,7 @@ import time
 import sys
 import random
 
-# ANSI color codes
-class Colors: # Colors for loading status
+class Colors:
     RESET = "\033[0m"
     GREEN = "\033[92m"
     YELLOW = "\033[93m"
@@ -73,18 +72,16 @@ def backup_files(source_dirs, backup_dirs):
             total_items = len(items)
             print(f"Items in {source_dir}:")
 
-            # Print each item in the source directory
             for item in items:
-                print(f" - {item}")
+                print(f" - {item}") # Displays the item in the terminal
 
             for backup_dir in backup_dirs:
                 target_dir = os.path.join(backup_dir, dir_name)
                 os.makedirs(target_dir, exist_ok=True)
 
-                # Initialize tqdm progress bar with color
                 with tqdm(total=total_items, desc=f"{Colors.GREEN}Backing up {dir_name}{Colors.RESET}", 
                           bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} items", ncols=100) as pbar:
-                    # Start the spinner in a separate thread
+                   
                     spinner_thread = threading.Thread(target=spinner)
                     spinner_thread.start()
 
@@ -94,20 +91,18 @@ def backup_files(source_dirs, backup_dirs):
 
                         try:
                             if os.path.isfile(source_item):
-                                # Copy file and overwrite if it exists
+                                # Replaces the old files with new ones
                                 shutil.copy2(source_item, target_item)
                             elif os.path.isdir(source_item):
-                                # If the directory exists, we need to copy its contents
+                                
                                 if os.path.exists(target_item):
-                                    shutil.rmtree(target_item)  # Remove existing directory
+                                    shutil.rmtree(target_item)  
                                 shutil.copytree(source_item, target_item)
                         except Exception as e:
                             print(f"Error copying {source_item} to {target_item}: {e}")
 
-                        # Update progress bar
                         pbar.update(1)
 
-                    # Stop the spinner
                     stop_spinner_event.set()
                     spinner_thread.join()
 
@@ -119,21 +114,17 @@ def backup_files(source_dirs, backup_dirs):
 
 def perform_backup():
     global stop_spinner_event
-    stop_spinner_event = threading.Event()  # Event to stop the spinner
+    stop_spinner_event = threading.Event()
 
     source_directories = [
-        "THIS FOLDER IS WHAT IS GOING TO BE COPIED",
-        # "",
+        "FILEPATH THAT WILL BE COPIED FROM"
     ]
     
-    # List of backup directories
     backup_directories = [
-        "THIS FOLDER IS WHAT WILL RECIEVE THE CONTENT",
-        # ""  # Add more backup directories as needed
+        "TARGET FOLDER TO RECEIVE FILES"
     ]
     
-    start_phrases = [ # Multiple phrases for the program to say when starting the backup/transfer
-      # Only speaks one for each run, not all of them each time
+    start_phrases = [ # Phrases that will be spoken once copy starts, only one each time
         "Backup is starting now.",
         "Initiating backup process.",
         "Starting the backup, please wait.",
@@ -142,8 +133,7 @@ def perform_backup():
         "Commencing backup now."
     ]
 
-    # Select a random phrase to announce
-    announcement = random.choice(start_phrases)
+    announcement = random.choice(start_phrases) # Selects a phrase
     speak(announcement)
 
     print("Available folders to back up:")
@@ -154,11 +144,12 @@ def perform_backup():
 
     backup_files(selected_folders, backup_directories)
 
+    stop_spinner_event.set()
+
 def main():
     global stop_spinner_event
-    stop_spinner_event = threading.Event()  # Event to stop the spinner
+    stop_spinner_event = threading.Event() 
 
-    # Automatically start the backup process
     perform_backup()
 
 if __name__ == "__main__":
